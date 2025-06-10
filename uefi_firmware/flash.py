@@ -8,6 +8,26 @@ from .me import MeContainer
 from .utils import *
 from .structs.flash_structs import *
 
+def search_flash_descriptor(data, limit=None):
+    results = []
+    start = 0
+    data_len = len(data)
+    min_descriptor_size = 20  # 16 byte padding + 4 byte header
+
+    while True:
+        pos = data.find(FLASH_HEADER, start)
+        if pos == -1:
+            break
+
+        candidate_offset = pos - 16
+        if candidate_offset >= 0 and (candidate_offset + min_descriptor_size) <= data_len:
+            results.append(candidate_offset)
+            if limit is not None and len(results) >= limit:
+                break
+
+        start = pos + 1
+
+    return results
 
 class RegionSection(StructuredObject):
     size = 20
